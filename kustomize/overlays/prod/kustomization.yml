@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: projet-final-prod
+
+bases:
+  - ../../base
+
+namePrefix: prod-
+
+replicas:
+  - name: back-deployment
+    count: 3
+  - name: front-deployment
+    count: 3
+
+patchesStrategicMerge:
+  - deployment-patch.yml
+  - ingress-tls-patch.yml
+  - hpa-patch.yml
+
+configMapGenerator:
+  - name: back-config
+    behavior: merge
+    literals:
+      - ENV=production
+      - DEBUG=false
+
+commonLabels:
+  environment: production
+

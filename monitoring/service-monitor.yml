@@ -1,0 +1,35 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: projet-final-backend
+  namespace: monitoring
+  labels:
+    app: projet-final
+    tier: back
+spec:
+  selector:
+    matchLabels:
+      app: projet-final
+      tier: back
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: projet-final-frontend
+  namespace: monitoring
+  labels:
+    app: projet-final
+    tier: front
+spec:
+  selector:
+    matchLabels:
+      app: projet-final
+      tier: front
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s

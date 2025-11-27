@@ -1,0 +1,61 @@
+# Secrets et fichiers sensibles
+*.key
+*.pem
+*.cert
+.env
+.env.local
+*.secret
+secrets/
+*.encrypted
+
+# Kubernetes
+kubeconfig
+.kube/
+
+# Docker
+.docker/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Backups
+*.sql
+backup-*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build
+dist/
+build/
+target/
+
+# Temporary files
+*.tmp
+*.temp
+

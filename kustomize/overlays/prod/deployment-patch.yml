@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: back-deployment
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        version: v2
+    spec:
+      containers:
+      - name: backend-api
+        env:
+        - name: ENV
+          value: "production"
+        - name: DEBUG
+          value: "false"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: front-deployment
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        version: v2
+

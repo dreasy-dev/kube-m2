@@ -1,0 +1,16 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: back-hpa
+spec:
+  minReplicas: 3
+  maxReplicas: 20
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: front-hpa
+spec:
+  minReplicas: 3
+  maxReplicas: 15
+
