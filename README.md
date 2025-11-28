@@ -87,10 +87,6 @@ kube-m2/
 │   └── overlays/
 │       ├── dev/
 │       └── prod/
-├── monitoring/
-│   ├── prometheus-deployment.yml
-│   ├── grafana-deployment.yml
-│   └── service-monitor.yml
 ├── scripts/
 │   ├── generate-secrets.sh
 │   ├── build-and-load.sh
@@ -118,13 +114,12 @@ kubectl port-forward svc/front-service 8080:80
 - architecture.md: Diagrammes et architecture détaillée
 - runbook.md: Déploiement, rollback, troubleshooting
 - security.md: Gestion secrets, RBAC, bonnes pratiques
-- hpa-tls-observability.md: HPA, TLS, Observabilité, Kustomize
+- hpa-tls-observability.md: HPA, TLS, Kustomize
 
 ## Fonctionnalités avancées
 
 HPA: Scaling automatique (hpa-back.yml, hpa-front.yml)
 TLS: Certificats SSL automatiques (cert-manager, front-ingress-tls.yml)
-Observabilité: Prometheus + Grafana (monitoring/)
 Kustomize: Multi-environnements (kustomize/overlays/)
 
 Voir docs/hpa-tls-observability.md pour détails.

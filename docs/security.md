@@ -153,28 +153,6 @@ Tous les Dockerfiles sont configurés pour exécuter avec des utilisateurs non-p
 - **Backend** : `appuser` (UID 1000)
 - **Frontend** : `nginx` (UID 1001)
 
-### Scan de vulnérabilités
-
-Le pipeline CI/CD inclut Trivy pour scanner les images Docker :
-
-```yaml
-- name: Scan image with Trivy
-  uses: aquasecurity/trivy-action@master
-```
-
-Scanner manuellement :
-```bash
-trivy image votre_username/projet-final-back:latest
-trivy image votre_username/projet-final-front:latest
-```
-
-### Images distroless (recommandé)
-
-Pour améliorer la sécurité, utiliser des images distroless :
-- `gcr.io/distroless/nodejs18-debian11` pour Node.js
-- `gcr.io/distroless/python3-debian11` pour Python
-- `distroless/static` pour Go
-
 ## Network Policies
 
 Restreindre le trafic réseau entre pods :
@@ -324,7 +302,6 @@ kubectl get events --sort-by='.lastTimestamp' | grep -i "security\|fail\|error"
 
 Centraliser les logs pour détecter les anomalies :
 - Falco pour la détection d'intrusion
-- Prometheus + Grafana pour le monitoring
 - ELK Stack pour l'analyse de logs
 
 ## Checklist de sécurité

@@ -1,10 +1,9 @@
-# HPA, TLS et Observabilité Avancée
+# HPA, TLS et Kustomize
 
 ## Table des matières
 
 - [Horizontal Pod Autoscaler (HPA)](#horizontal-pod-autoscaler-hpa)
 - [TLS / HTTPS](#tls--https)
-- [Observabilité (Prometheus & Grafana)](#observabilité-prometheus--grafana)
 - [Kustomize](#kustomize)
 
 ## Horizontal Pod Autoscaler (HPA)
@@ -112,98 +111,6 @@ L'ingress TLS inclut :
 - ✅ Renouvellement automatique des certificats
 - ✅ Rate limiting (100 req/s, 10 connexions simultanées)
 
-## Observabilité (Prometheus & Grafana)
-
-### Installation de Prometheus
-
-```bash
-# Créer le namespace monitoring
-kubectl create namespace monitoring
-
-# Déployer Prometheus
-kubectl apply -f monitoring/prometheus-deployment.yml
-
-# Vérifier
-kubectl get pods -n monitoring
-kubectl get svc -n monitoring
-```
-
-### Installation de Grafana
-
-```bash
-# Déployer Grafana
-kubectl apply -f monitoring/grafana-deployment.yml
-
-# Vérifier
-kubectl get pods -n monitoring -l app=grafana
-```
-
-### Accès à Grafana
-
-```bash
-# Port-forward pour accès local
-kubectl port-forward -n monitoring svc/grafana 3000:3000
-
-# Accéder à http://localhost:3000
-# Login: admin / admin (⚠️ À changer en production)
-```
-
-Ou via Ingress (si configuré) :
-```bash
-# Remplacer le domaine dans monitoring/grafana-deployment.yml
-kubectl get ingress -n monitoring
-```
-
-### Dashboards Grafana recommandés
-
-1. **Dashboard Kubernetes** : ID `13105`
-2. **Node Exporter Full** : ID `1860`
-3. **Kubernetes Cluster Monitoring** : ID `7249`
-
-Import depuis Grafana :
-1. Allez dans Dashboards → Import
-2. Entrez l'ID du dashboard
-3. Sélectionnez la datasource Prometheus
-
-### Métriques personnalisées
-
-Pour exposer des métriques depuis vos applications :
-
-**Backend (exemple Python/FastAPI)** :
-```python
-from prometheus_client import Counter, Histogram, generate_latest
-
-REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP requests')
-REQUEST_DURATION = Histogram('http_request_duration_seconds', 'HTTP request duration')
-
-@app.get('/metrics')
-async def metrics():
-    return Response(generate_latest(), media_type='text/plain')
-```
-
-**Frontend** : Utiliser un endpoint `/metrics` si nécessaire, ou collecter via cAdvisor.
-
-### Alerting (optionnel)
-
-Créer des règles d'alerte Prometheus :
-
-```yaml
-apiVersion: monitoring.coreos.com/v1
-kind: PrometheusRule
-metadata:
-  name: projet-final-alerts
-  namespace: monitoring
-spec:
-  groups:
-  - name: projet-final
-    rules:
-    - alert: HighCPUUsage
-      expr: rate(container_cpu_usage_seconds_total[5m]) > 0.8
-      for: 5m
-      annotations:
-        summary: "High CPU usage detected"
-```
-
 ## Kustomize
 
 ### Structure
@@ -299,36 +206,6 @@ kubectl describe certificate front-tls-secret
 kubectl get secret front-tls-secret
 ```
 
-### Prometheus
-
-```bash
-# Port-forward Prometheus
-kubectl port-forward -n monitoring svc/prometheus 9090:9090
-
-# Accéder à http://localhost:9090
-
-# Requêtes PromQL utiles
-# CPU usage moyen des pods backend
-sum(rate(container_cpu_usage_seconds_total{pod=~"back.*"}[5m])) by (pod)
-
-# Mémoire utilisée
-sum(container_memory_usage_bytes{pod=~"back.*"}) by (pod)
-
-# Nombre de pods par deployment
-count(kube_pod_info{namespace="default"}) by (created_by_kind, created_by_name)
-```
-
-### Grafana
-
-```bash
-# Port-forward Grafana
-kubectl port-forward -n monitoring svc/grafana 3000:3000
-
-# Changer le mot de passe admin
-kubectl get secret grafana-secret -n monitoring -o yaml
-# Éditer et reapply
-```
-
 ## Checklist de déploiement
 
 ### HPA
@@ -343,14 +220,6 @@ kubectl get secret grafana-secret -n monitoring -o yaml
 - [ ] Ingress TLS configuré avec domaine
 - [ ] Certificat généré et valide
 - [ ] Redirection HTTPS active
-
-### Observabilité
-- [ ] Namespace monitoring créé
-- [ ] Prometheus déployé
-- [ ] Grafana déployé
-- [ ] Datasource Prometheus configurée
-- [ ] Dashboards importés
-- [ ] Métriques applicatives exposées (optionnel)
 
 ### Kustomize
 - [ ] Base configurée
@@ -385,19 +254,5 @@ kubectl describe certificate front-tls-secret
 
 # Vérifier les challenges ACME
 kubectl get challenges
-```
-
-### Prometheus ne collecte pas de métriques
-
-```bash
-# Vérifier la configuration
-kubectl get configmap prometheus-config -n monitoring -o yaml
-
-# Vérifier les logs
-kubectl logs -n monitoring deployment/prometheus
-
-# Tester manuellement un scrape
-kubectl port-forward -n monitoring svc/prometheus 9090:9090
-# Aller sur http://localhost:9090/targets
 ```
 

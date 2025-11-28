@@ -174,7 +174,6 @@ Cette application est une architecture 3-tiers déployée sur Kubernetes, compos
 - **Logs** : Accessibles via `kubectl logs`
 - **Labels** : Cohérents (app: projet-final, tier: front/back/db, version: v1)
 - **Probes** : Monitoring de santé intégré
-- **Resources** : Monitoring via métriques Kubernetes
 
 ## Choix techniques justifiés
 
