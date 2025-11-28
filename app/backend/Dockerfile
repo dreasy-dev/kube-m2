@@ -2,7 +2,7 @@ FROM node:18-alpine
 WORKDIR /app
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 COPY package*.json ./
-RUN npm ci --only=production && chown -R nodejs:nodejs /app
+RUN npm install --omit=dev && chown -R nodejs:nodejs /app
 COPY --chown=nodejs:nodejs . .
 USER nodejs
 EXPOSE 8080
