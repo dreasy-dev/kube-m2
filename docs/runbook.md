@@ -1,13 +1,5 @@
 # Runbook - Guide de déploiement et opérations
 
-## Prérequis
-
-- kubectl installé et configuré
-- Accès à un cluster Kubernetes (minikube, kind, ou cluster managé)
-- Docker pour construire les images
-- Accès au registre Docker (Docker Hub ou registry local)
-- NGINX Ingress Controller installé (pour minikube: `minikube addons enable ingress`)
-
 ## Déploiement initial
 
 ### 1. Génération des secrets
@@ -21,15 +13,10 @@ cat k8s/db-secret.yml
 cat k8s/back-config-secret.yml
 ```
 
-### 2. Configuration des images Docker
+### 2. Construire les images Docker
 
-Éditez les fichiers de déploiement pour remplacer les placeholders :
 ```bash
-# Remplacer dans k8s/back-deployment.yml
-sed -i 's|votre_image_back:latest|votre_username/projet-final-back:latest|g' k8s/back-deployment.yml
-
-# Remplacer dans k8s/front-deployment.yml
-sed -i 's|votre_image_front:latest|votre_username/projet-final-front:latest|g' k8s/front-deployment.yml
+./scripts/build-and-load.sh
 ```
 
 ### 3. Déploiement par ordre
@@ -88,49 +75,12 @@ kubectl logs -l tier=db --tail=50
 ### 6. Accès à l'application
 
 ```bash
-# Obtenir l'URL de l'ingress (minikube)
-minikube service front-ingress --url
 
-# Ou obtenir l'IP du nœud
+# Obtenir l'IP de l'ingress
 kubectl get ingress front-ingress
 # Accéder à http://<INGRESS_IP>/
 ```
-
-## Mises à jour (Rolling Update)
-
-### Mise à jour du backend
-
-```bash
-# 1. Construire et pousser la nouvelle image
-docker build -t votre_username/projet-final-back:v2.0 ./app/backend
-docker push votre_username/projet-final-back:v2.0
-
-# 2. Mettre à jour l'image dans le deployment
-kubectl set image deployment/back-deployment \
-  backend-api=votre_username/projet-final-back:v2.0
-
 # 3. Surveiller le déploiement
-kubectl rollout status deployment/back-deployment
-
-# 4. Vérifier les nouvelles réplicas
-kubectl get pods -l tier=back
-```
-
-### Mise à jour du frontend
-
-```bash
-# 1. Construire et pousser la nouvelle image
-docker build -t votre_username/projet-final-front:v2.0 ./app/frontend
-docker push votre_username/projet-final-front:v2.0
-
-# 2. Mettre à jour l'image dans le deployment
-kubectl set image deployment/front-deployment \
-  frontend-spa=votre_username/projet-final-front:v2.0
-
-# 3. Surveiller le déploiement
-kubectl rollout status deployment/front-deployment
-```
-
 ## Rollback
 
 ### Rollback du backend
