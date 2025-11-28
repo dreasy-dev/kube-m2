@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: backend-api
-        image: projet-final-back:latest
+        image: dreasy/projetkubem2-back:latest
         ports:
         - containerPort: 8080 
         envFrom:

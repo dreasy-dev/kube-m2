@@ -13,12 +13,6 @@ Composants:
 - Database: PostgreSQL 15 avec PVC persistant
 - Ingress: NGINX Ingress Controller
 
-## Prérequis
-
-- Kubernetes cluster
-- kubectl version 1.24+
-- Docker
-- NGINX Ingress Controller installé
 
 ## Installation
 
@@ -30,19 +24,21 @@ Composants:
 
 Sauvegardez le mot de passe DB affiché.
 
-### 2. Construire et charger les images Docker
+### 2. Construire et pousser les images Docker
 
+Se connecter à Docker Hub:
 ```bash
-./scripts/build-and-load.sh
+docker login
 ```
 
-Ce script construit les images et les charge dans le cluster si nécessaire.
-
-Pour utiliser un registry Docker, modifiez les images dans les deployments:
+Construire et pousser les images:
 ```bash
-sed -i 's|projet-final-back:latest|votre_username/projet-final-back:latest|g' k8s/back-deployment.yml
-sed -i 's|projet-final-front:latest|votre_username/projet-final-front:latest|g' k8s/front-deployment.yml
+./scripts/build-and-push.sh 
 ```
+
+Les images sont maintenant sur Docker Hub:
+- dreasy/projetkubem2-back:latest
+- dreasy/projetkubem2-front:latest
 
 ### 3. Déployer
 
@@ -97,9 +93,8 @@ kube-m2/
 │   └── service-monitor.yml
 ├── scripts/
 │   ├── generate-secrets.sh
+│   ├── build-and-load.sh
 │   └── deploy.sh
-├── .github/workflows/
-│   └── ci-cd.yml
 └── docs/
     ├── architecture.md
     ├── runbook.md
@@ -125,15 +120,6 @@ kubectl port-forward svc/front-service 8080:80
 - security.md: Gestion secrets, RBAC, bonnes pratiques
 - hpa-tls-observability.md: HPA, TLS, Observabilité, Kustomize
 
-## CI/CD
-
-Pipeline GitHub Actions dans `.github/workflows/ci-cd.yml`.
-
-Secrets GitHub requis:
-- DOCKER_USERNAME
-- DOCKER_PASSWORD
-- KUBECONFIG (optionnel)
-
 ## Fonctionnalités avancées
 
 HPA: Scaling automatique (hpa-back.yml, hpa-front.yml)
@@ -142,3 +128,43 @@ Observabilité: Prometheus + Grafana (monitoring/)
 Kustomize: Multi-environnements (kustomize/overlays/)
 
 Voir docs/hpa-tls-observability.md pour détails.
+
+
+### Deploy 
+
+```bash
+[root@master kube-m2]# kubectl get nodes
+NAME                    STATUS     ROLES           AGE   VERSION
+localhost.localdomain   NotReady   control-plane   28d   v1.30.14
+worker1                 Ready      <none>          28d   v1.30.14
+worker2                 Ready      <none>          28d   v1.30.14
+worker3                 Ready      <none>          28d   v1.30.14
+
+[root@master kube-m2]# bash scripts/deploy.sh 
+secret/db-secret created
+configmap/back-config created
+secret/back-secret created
+persistentvolumeclaim/db-pvc created
+deployment.apps/postgres-db-deployment created
+service/postgres-db-service created
+error: timed out waiting for the condition on pods/postgres-db-deployment-5956c7fd86-lvk5r
+deployment.apps/back-deployment created
+service/back-service created
+deployment.apps/front-deployment created
+service/front-service created
+Warning: annotation "kubernetes.io/ingress.class" is deprecated, please use 'spec.ingressClassName' instead
+ingress.networking.k8s.io/front-ingress created
+horizontalpodautoscaler.autoscaling/back-hpa created
+horizontalpodautoscaler.autoscaling/front-hpa created
+NAME                                      READY   STATUS         RESTARTS   AGE
+back-deployment-58fc464c68-49ln5          0/1     ErrImagePull   0          11s
+back-deployment-58fc464c68-vf642          0/1     ErrImagePull   0          11s
+front-deployment-76bbcffb4c-rb6qg         0/1     ErrImagePull   0          10s
+front-deployment-76bbcffb4c-vbbj6         0/1     ErrImagePull   0          10s
+postgres-db-deployment-5956c7fd86-lvk5r   0/1     Pending        0          2m11s
+NAME                  TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+back-service          ClusterIP   10.98.151.185    <none>        80/TCP     11s
+front-service         ClusterIP   10.106.172.119   <none>        80/TCP     10s
+postgres-db-service   ClusterIP   10.98.27.64      <none>        5432/TCP   2m11s
+NAME            CLASS    HOSTS   ADDRESS   PORTS   AGE
+front-ingress   <none>   *                 80      10s

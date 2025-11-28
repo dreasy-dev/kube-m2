@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: frontend-spa
-        image: projet-final-front:latest
+        image: dreasy/projetkubem2-front:latest
         ports:
         - containerPort: 80 
         livenessProbe:
