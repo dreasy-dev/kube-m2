@@ -152,19 +152,33 @@ deployment.apps/back-deployment created
 service/back-service created
 deployment.apps/front-deployment created
 service/front-service created
-Warning: annotation "kubernetes.io/ingress.class" is deprecated, please use 'spec.ingressClassName' instead
 ingress.networking.k8s.io/front-ingress created
 horizontalpodautoscaler.autoscaling/back-hpa created
 horizontalpodautoscaler.autoscaling/front-hpa created
-NAME                                      READY   STATUS         RESTARTS   AGE
-back-deployment-58fc464c68-49ln5          0/1     ErrImagePull   0          11s
-back-deployment-58fc464c68-vf642          0/1     ErrImagePull   0          11s
-front-deployment-76bbcffb4c-rb6qg         0/1     ErrImagePull   0          10s
-front-deployment-76bbcffb4c-vbbj6         0/1     ErrImagePull   0          10s
-postgres-db-deployment-5956c7fd86-lvk5r   0/1     Pending        0          2m11s
-NAME                  TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
-back-service          ClusterIP   10.98.151.185    <none>        80/TCP     11s
-front-service         ClusterIP   10.106.172.119   <none>        80/TCP     10s
-postgres-db-service   ClusterIP   10.98.27.64      <none>        5432/TCP   2m11s
-NAME            CLASS    HOSTS   ADDRESS   PORTS   AGE
-front-ingress   <none>   *                 80      10s
+
+
+kubectl get services -l app=projet-final
+NAME                                      READY   STATUS             RESTARTS      AGE
+back-deployment-58fc464c68-7mw8w          1/1     Running            0             10m
+back-deployment-58fc464c68-lvdl7          1/1     Running            0             10m
+back-deployment-d46bdf8c8-xj4h4           1/1     Running            0             14m
+front-deployment-65d8c46d7c-9xzd5         1/1     Running            6 (11m ago)   14m
+front-deployment-65d8c46d7c-l4q2q         1/1     Running            0             8m14s
+postgres-db-deployment-5956c7fd86-zxns6   0/1     Pending            0             5m53s
+NAME                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+back-service             ClusterIP   10.98.151.185    <none>        80/TCP         86m
+front-service            ClusterIP   10.106.172.119   <none>        80/TCP         86m
+front-service-nodeport   NodePort    10.104.31.252    <none>        80:30080/TCP   109s
+postgres-db-service      ClusterIP   10.98.27.64      <none>        5432/TCP       88m
+[root@master kube-m2]# kubectl get svc front-service-nodeport
+NAME                     TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+front-service-nodeport   NodePort   10.104.31.252   <none>        80:30080/TCP   2m4s
+````
+### Accéder à l'application
+
+```bash
+http://localhost:30080/
+```
+![image](images/image.png)
+
+Acces OK a l'appication qui tourne sur le cluster Kubernetes séparé sur 3 nodes et le master sous Rocky Linux.
